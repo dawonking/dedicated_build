@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 
 
 namespace NetworkCore
@@ -9,7 +7,7 @@ namespace NetworkCore
     {
 
         ArraySegment<byte> _buffer;
-        int _readPos;        
+        int _readPos;
         int _writePos;
         //쓰인위치- 마지막 읽은 위치
         public int DataSize { get { return _writePos - _readPos; } }
@@ -35,7 +33,7 @@ namespace NetworkCore
 
         public bool OnRead(int numOfBytes)
         {
-            if(numOfBytes > DataSize)
+            if (numOfBytes > DataSize)
             {
                 return false;
             }
@@ -47,7 +45,7 @@ namespace NetworkCore
 
         public bool OnWrite(int numOfBytes)
         {
-            if(numOfBytes > FreeSize)
+            if (numOfBytes > FreeSize)
             {
                 return false;
             }
@@ -61,11 +59,11 @@ namespace NetworkCore
         {
             int dataSize = DataSize;
             if (dataSize == 0)
-            {                
+            {
                 _readPos = _writePos = 0;
             }
             else
-            {                
+            {
                 Array.Copy(_buffer.Array, _buffer.Offset + _readPos, _buffer.Array, _buffer.Offset, dataSize);
                 _readPos = 0;
                 _writePos = dataSize;

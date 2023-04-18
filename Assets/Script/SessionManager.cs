@@ -1,13 +1,10 @@
 using NetworkCore;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using UnityEngine;
 
 /// <summary>
 /// 클라이언트 세션들을 관리
 /// </summary>
-public class SessionManager 
+public class SessionManager
 {
     static SessionManager _sessionManager = new SessionManager();
     public static SessionManager Instance
@@ -38,7 +35,7 @@ public class SessionManager
     public void Remove(Session session)
     {
         lock (_lock)
-        {            
+        {
             _sessions.Remove(session.SessionId);
         }
     }

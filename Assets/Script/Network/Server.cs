@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
@@ -30,7 +29,7 @@ namespace NetworkCore
             udpListener = new UdpClient(Port);
             udpListener.BeginReceive(udpReceiveCallback, null);
             Debug.Log("Server_Start Port = " + Port);
-            
+
 
         }
 
@@ -39,9 +38,9 @@ namespace NetworkCore
             TcpClient _client = tcpListener.EndAcceptTcpClient(_reslut);
             tcpListener.BeginAcceptTcpClient(tcpConnectCallback, null);
 
-            for(int i =1; i<= maxPlay; i++)
+            for (int i = 1; i <= maxPlay; i++)
             {
-                if(playerDiction[i].tcp.socket == null)
+                if (playerDiction[i].tcp.socket == null)
                 {
                     playerDiction[i].tcp.Connect(_client);
                     return;
@@ -66,7 +65,7 @@ namespace NetworkCore
                     return;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Debug.Log(e.ToString());
             }
@@ -77,7 +76,7 @@ namespace NetworkCore
         {
             for (int i = 1; i <= maxPlay; i++)
             {
-                playerDiction.Add(i, new Client(i,""));
+                playerDiction.Add(i, new Client(i, ""));
             }
         }
 

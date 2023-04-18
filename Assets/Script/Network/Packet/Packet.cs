@@ -1,16 +1,18 @@
 using NetworkCore;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 
 public enum PacketID
 {
     Connect = 1,
-    C_Move = 2,
-    C_playerSpawn = 3,
-    C_itemSpawn = 4,
-    S_BroadcastMove = 5
+    Move = 2,
+    shot = 3,
+
+    itemSpawn = 4,
+    objMove = 5,
+    BroadcastMove = 6,
+
+    Message = 7
+
 }
 
 public interface IPacket
@@ -21,29 +23,15 @@ public interface IPacket
     ArraySegment<byte> Write();
 }
 
-//public class Connect : IPacket
-//{
-//    public ushort Protocol { get { return (ushort)PacketID.Connect; } }
 
-//    public void Read(ArraySegment<byte> segment)
-//    {
-        
-//    }
-
-//    public ArraySegment<byte> Write()
-//    {
-        
-//    }
-//}
-
-public class S_BroadcastMove : IPacket
+public class BroadcastMove : IPacket
 {
     public int playerId;
     public float posX;
     public float posY;
     public float posZ;
 
-    public ushort Protocol { get { return (ushort)PacketID.S_BroadcastMove; } }
+    public ushort Protocol { get { return (ushort)PacketID.BroadcastMove; } }
 
     public void Read(ArraySegment<byte> segment)
     {
@@ -66,7 +54,7 @@ public class S_BroadcastMove : IPacket
         ushort count = 0;
 
         count += sizeof(ushort);
-        Array.Copy(BitConverter.GetBytes((ushort)PacketID.S_BroadcastMove), 0, segment.Array, segment.Offset + count, sizeof(ushort));
+        Array.Copy(BitConverter.GetBytes((ushort)PacketID.BroadcastMove), 0, segment.Array, segment.Offset + count, sizeof(ushort));
         count += sizeof(ushort);
         Array.Copy(BitConverter.GetBytes(this.playerId), 0, segment.Array, segment.Offset + count, sizeof(int));
         count += sizeof(int);
@@ -84,7 +72,7 @@ public class S_BroadcastMove : IPacket
 }
 
 
-public class C_Move : IPacket
+public class Move : IPacket
 {
     public float posX;
     public float posY;
@@ -95,7 +83,7 @@ public class C_Move : IPacket
     public float rotZ;
 
 
-    public ushort Protocol { get { return (ushort)PacketID.C_Move; } }
+    public ushort Protocol { get { return (ushort)PacketID.Move; } }
     public void Read(ArraySegment<byte> segment)
     {
         ushort count = 0;
@@ -117,7 +105,7 @@ public class C_Move : IPacket
 
         //C_Move만큼 입력
         count += sizeof(ushort);
-        Array.Copy(BitConverter.GetBytes((ushort)PacketID.C_Move), 0, segment.Array, segment.Offset + count, sizeof(ushort));
+        Array.Copy(BitConverter.GetBytes((ushort)PacketID.Move), 0, segment.Array, segment.Offset + count, sizeof(ushort));
 
         count += sizeof(ushort);
         Array.Copy(BitConverter.GetBytes(this.posX), 0, segment.Array, segment.Offset + count, sizeof(float));
@@ -131,5 +119,64 @@ public class C_Move : IPacket
 
         return SendBufferHelper.Close(count);
     }
-}   
+}
 
+public class shot : IPacket
+{
+    public ushort Protocol { get { return (ushort)PacketID.Move; } }
+
+    public void Read(ArraySegment<byte> segment)
+    {
+
+    }
+
+    public ArraySegment<byte> Write()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class itemSpawn : IPacket
+{
+    public ushort Protocol { get { return (ushort)PacketID.Move; } }
+
+    public void Read(ArraySegment<byte> segment)
+    {
+
+    }
+
+    public ArraySegment<byte> Write()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class objMove : IPacket
+{
+    public ushort Protocol { get { return (ushort)PacketID.Move; } }
+
+    public void Read(ArraySegment<byte> segment)
+    {
+
+    }
+
+    public ArraySegment<byte> Write()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class Message : IPacket
+{
+    public ushort Protocol { get { return (ushort)PacketID.Move; } }
+
+    public void Read(ArraySegment<byte> segment)
+    {
+
+    }
+
+    public ArraySegment<byte> Write()
+    {
+        throw new NotImplementedException();
+    }
+}

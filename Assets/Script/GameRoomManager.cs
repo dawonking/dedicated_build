@@ -1,18 +1,19 @@
 using NetworkCore;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 // 게임방에서 입장, 움직임, 퇴장 등의 이벤트를 처리하는 클래스
 
-public class GameRoomManager : MonoBehaviour ,IJobQueue
+public class GameRoomManager : MonoBehaviour, IJobQueue
 {
+    static GameRoomManager _instance = new GameRoomManager();
+    public static GameRoomManager Instance { get { return _instance; } }
+
 
     JobQue _jobQue = new JobQue();
     List<playerSession> _playerSession = new List<playerSession>();
     List<ArraySegment<byte>> quelist = new List<ArraySegment<byte>>();
-
 
     public void Push(Action job)
     {
@@ -22,7 +23,7 @@ public class GameRoomManager : MonoBehaviour ,IJobQueue
     //NetWortManger의 FixedManager에서 사용
     public void Flush()
     {
-        foreach(playerSession s in _playerSession)
+        foreach (playerSession s in _playerSession)
         {
             //s.Send(quelist);
         }
@@ -36,10 +37,11 @@ public class GameRoomManager : MonoBehaviour ,IJobQueue
         _playerSession.Add(_session);
         _session.roomManager = this;
 
-        if(_playerSession.Count == 8)
-        {
-            //gameStart
+        setM.Instance.Msg($"ID : {_session.SessionId} Connect");
 
+        if (_playerSession.Count == 8)
+        {
+            setM.Instance.Msg("Game_Start");
         }
 
     }
@@ -56,7 +58,7 @@ public class GameRoomManager : MonoBehaviour ,IJobQueue
 
     }
 
-    public void Move(playerSession session , C_Move packet)
+    public void Move(playerSession session, Move packet)
     {
         //플레이어좌표를 패킷 좌표로
         session.posX = packet.posX;
@@ -66,7 +68,7 @@ public class GameRoomManager : MonoBehaviour ,IJobQueue
         //이후 다른 플레이어들에게 전달
 
 
-        
+
 
     }
 
