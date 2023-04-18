@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
@@ -9,27 +11,27 @@ namespace NetworkCore
     {
         Socket _tcplistenSocket;
         Socket _udplistenSocket;
-
+        
         Func<Session> _sessionFunc;
 
-        readonly int maxPlayer = 8;
+        int maxPlayer = 8;
 
-        //int _sessionId = 0;
+        int _sessionId = 0;
 
-        public void Init(IPEndPoint endPoint, Func<Session> session)
-        {
+        public void Init(IPEndPoint endPoint , Func<Session> session)
+        {            
             _tcplistenSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _udplistenSocket = new Socket(endPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
 
             //delegate등록
-            _sessionFunc += session;
+            _sessionFunc+= session;
 
             _tcplistenSocket.Bind(endPoint);
             _udplistenSocket.Bind(endPoint);
 
             _tcplistenSocket.Listen(8);
 
-            for (int i = 0; i < maxPlayer; i++)
+            for(int i =0; i < maxPlayer; i++)
             {
                 SocketAsyncEventArgs args = new SocketAsyncEventArgs();
                 args.Completed += new EventHandler<SocketAsyncEventArgs>(OnAcceptCompleted);
@@ -54,7 +56,7 @@ namespace NetworkCore
 
         void OnAcceptCompleted(object sender, SocketAsyncEventArgs args)
         {
-            if (args.SocketError == SocketError.Success)
+            if(args.SocketError == SocketError.Success)
             {
                 //등록된 delegate를 실행
                 Session session = _sessionFunc.Invoke();

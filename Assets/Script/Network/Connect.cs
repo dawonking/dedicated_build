@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
@@ -16,10 +19,10 @@ namespace NetworkCore
             AsycEvent.Completed += Set;
         }
 
-
-        public void Init(EndPoint endpoint, int maxPlay, int backlog = 100)
-        {
-
+        
+        public void Init(EndPoint endpoint , int maxPlay , int backlog = 100)
+        {           
+            
         }
 
         void Set(object sender, SocketAsyncEventArgs args)

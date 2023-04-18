@@ -1,5 +1,9 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
+using UnityEngine;
 
 public enum PlayerState
 {
@@ -21,7 +25,7 @@ public class Client
     public Tcp tcp;
     public Udp udp;
 
-    public Client(int _clientid, string getname)
+    public Client(int _clientid , string getname)
     {
         id = _clientid;
         name = getname;
@@ -34,7 +38,7 @@ public class Client
     {
         public TcpClient socket;
         private readonly int id;
-        private NetworkStream netStream;
+        private NetworkStream netStream;        
         private byte[] receiveBuffer;
 
         public Tcp(int _id)
@@ -48,7 +52,7 @@ public class Client
             socket = _socket;
             socket.ReceiveBufferSize = buffsize;
             socket.SendBufferSize = buffsize;
-            netStream = socket.GetStream();
+            netStream = socket.GetStream();            
             receiveBuffer = new byte[buffsize];
 
             netStream.BeginRead(receiveBuffer, 0, buffsize, ReceiveCallback, null);
@@ -70,7 +74,7 @@ public class Client
 
         public Udp(int _id)
         {
-            id = _id;
+            id = _id;    
         }
     }
 

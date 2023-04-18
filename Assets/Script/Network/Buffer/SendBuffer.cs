@@ -1,5 +1,8 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
+using System.Text;
+using System;
 
 namespace NetworkCore
 {
@@ -7,15 +10,15 @@ namespace NetworkCore
     {
         public static ThreadLocal<SendBuffer> CurrentBuffer = new ThreadLocal<SendBuffer>();
 
-        public static int ChunkSize { get; set; } = 35535 * 100;
+        public static int ChunkSize { get; set; } = 35535 * 100;    
 
         public static ArraySegment<byte> Open(int reserveSize)
         {
-            if (CurrentBuffer.Value == null)
+            if(CurrentBuffer.Value == null)
             {
                 CurrentBuffer.Value = new SendBuffer(ChunkSize);
             }
-            if (CurrentBuffer.Value.FreeSize < reserveSize)
+            if(CurrentBuffer.Value.FreeSize < reserveSize)
             {
                 CurrentBuffer.Value = new SendBuffer(ChunkSize);
             }
@@ -45,7 +48,7 @@ namespace NetworkCore
 
         public ArraySegment<byte> Open(int reserveSize)
         {
-            if (reserveSize > FreeSize)
+            if(reserveSize > FreeSize)
             {
                 return null;
             }

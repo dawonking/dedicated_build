@@ -1,8 +1,10 @@
-ï»¿using System;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using UnityEngine;
+
 
 namespace NetworkCore
 {
@@ -18,7 +20,7 @@ namespace NetworkCore
 
             while (true)
             {
-                //í—¤ë”ì‚¬ì´ì¦ˆë³´ë‹¤ í°ì§€
+                //Çì´õ»çÀÌÁîº¸´Ù Å«Áö
                 if (buffer.Count < HeaderSize)
                 {
                     break;
@@ -30,20 +32,14 @@ namespace NetworkCore
                     break;
                 }
 
-                //ì—¬ê¸°ì„œ ë¶€í„° íŒ¨í‚·ì¡°ë¦½ ê°€ëŠ¥
+                //¿©±â¼­ ºÎÅÍ ÆĞÅ¶Á¶¸³ °¡´É
                 OnRecvPacket(new ArraySegment<byte>(buffer.Array, buffer.Offset, dataSize));
                 packetCount++;
 
-                processLen += dataSize;                
-                buffer = new ArraySegment<byte>(buffer.Array, buffer.Offset + dataSize, buffer.Count - dataSize);
+                processLen += dataSize;
+                buffer = new ArraySegment<byte>(buffer.Array, buffer.Offset + dataSize, dataSize);
+
             }
-
-            if (packetCount > 0)
-            {
-                setM.Instance.Msg($"packetCount = {packetCount}");
-            }
-
-
 
             return processLen;
         }
@@ -53,18 +49,18 @@ namespace NetworkCore
     }
 
 
-    //í´ë¼ì´ì–¸íŠ¸ë³„ ì„¸ì…˜ 
+    //Å¬¶óÀÌ¾ğÆ®º° ¼¼¼Ç 
     //
     public abstract class Session
     {
-        //í´ë¼ì´ì–¸íŠ¸ë³„ ì„¸ì…˜ ì•„ì´ë””
+        //Å¬¶óÀÌ¾ğÆ®º° ¼¼¼Ç ¾ÆÀÌµğ
         public int SessionId { get; set; }
         int connectcheck = 0;
         object _lock = new object();
+        
 
-
-        #region tcpì†Œì¼“ ê´€ë ¨
-        Socket _tcpsocket;
+        #region tcp¼ÒÄÏ °ü·Ã
+        Socket _tcpsocket;        
         SocketAsyncEventArgs _tcpsendArgs = new SocketAsyncEventArgs();
         SocketAsyncEventArgs _tcprecvArgs = new SocketAsyncEventArgs();
         Queue<ArraySegment<byte>> _tcpsendQue = new Queue<ArraySegment<byte>>();
@@ -73,16 +69,14 @@ namespace NetworkCore
 
         #endregion
 
-        #region udpì†Œì¼“ ê´€ë ¨
+        #region udp¼ÒÄÏ °ü·Ã
 
         Socket _udpsocket;
         SocketAsyncEventArgs _udpsendArgs = new SocketAsyncEventArgs();
         SocketAsyncEventArgs _udprecvArgs = new SocketAsyncEventArgs();
         Queue<ArraySegment<byte>> _udpsendQue = new Queue<ArraySegment<byte>>();
         List<ArraySegment<byte>> _udppendingList = new List<ArraySegment<byte>>();
-
-
-        RecvBuffer _udprecvBuffer = new RecvBuffer(1024);
+        RecvBuffer _udprecvBuffer = new RecvBuffer(65535);
 
         #endregion
 
@@ -105,25 +99,20 @@ namespace NetworkCore
             _udpsendArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnudpsendCompleted);
 
             //Todo
-            //RegisterRecv -> ê¸°ì¡´ tcpëŠ” ê·¸ëŒ€ë¡œ ì²˜ë¦¬í•˜ë˜, udpì—ì„œëŠ” ì–´ë–»ê²Œ í• ì§€?
-            //tcpì—ì„œëŠ” ì»¤ë„¥ì…˜ê³¼ ì±„íŒ…? ë§Œ ì²˜ë¦¬í•˜ê³ , udpì—ì„œëŠ” ê²Œì„ì—ì„œì˜ ì›€ì§ì„ì„ ì²˜ë¦¬í•œë‹¤.
+            //RegisterRecv -> ±âÁ¸ tcp´Â ±×´ë·Î Ã³¸®ÇÏµÇ, udp¿¡¼­´Â ¾î¶»°Ô ÇÒÁö?
+            //tcp¿¡¼­´Â Ä¿³Ø¼Ç°ú Ã¤ÆÃ? ¸¸ Ã³¸®ÇÏ°í, udp¿¡¼­´Â °ÔÀÓ¿¡¼­ÀÇ ¿òÁ÷ÀÓÀ» Ã³¸®ÇÑ´Ù.
             RegistertcpRecv();
             RegisterudpRecv();
         }
-
+       
         public void Disconnect()
         {
 
         }
 
-
-
-        #region TCP , ì´ˆê¸° ì—°ê²°ì‹œ í™•ì¸
-
-        void tcpSend()
-        {
-
-        }
+        
+              
+        #region TCP , ÃÊ±â ¿¬°á½Ã È®ÀÎ
 
         void RegistertcpRecv()
         {
@@ -145,7 +134,7 @@ namespace NetworkCore
             }
             catch (Exception ex)
             {
-                setM.Instance.Msg(ex.ToString());
+
             }
 
         }
@@ -167,9 +156,9 @@ namespace NetworkCore
 
 
         }
+        
 
-
-        //ë°© ì§„ì…
+        //¹æ ÁøÀÔ
         void RegistertcpSend()
         {
             if (connectcheck == 1)
@@ -191,7 +180,7 @@ namespace NetworkCore
             }
             catch (Exception e)
             {
-
+                
             }
         }
 
@@ -200,7 +189,7 @@ namespace NetworkCore
         {
             lock (_lock)
             {
-                if (args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
+                if(args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
                 {
                     try
                     {
@@ -228,88 +217,7 @@ namespace NetworkCore
 
         #endregion
 
-        #region UDP í”Œë ˆì´ì–´,ì˜¤ë¸Œì íŠ¸ ì´ë™
-
-        void Send(List<ArraySegment<byte>> sendBufferList)
-        {
-            if(sendBufferList.Count == 0)
-            {
-                return;
-            }
-
-            lock (_lock)
-            {
-                foreach(ArraySegment<byte> sendBuff in sendBufferList)
-                {
-                    _udpsendQue.Enqueue(sendBuff);
-
-                    if(_udppendingList.Count == 0)
-                    {
-                        RegisterudpSend();
-                    }
-
-                }
-            }
-
-
-        }
-
-
-        void RegisterudpSend()
-        {
-            while(_udpsendQue.Count > 0)
-            {
-                ArraySegment<byte> buff = _udpsendQue.Dequeue();
-                _udppendingList.Add(buff);
-            }
-            _udpsendArgs.BufferList = _udppendingList;
-
-            try
-            {
-                bool pendging = _udpsocket.SendAsync(_udpsendArgs);
-                if (!pendging)
-                {
-                    OnudpsendCompleted(null, _udpsendArgs);
-                }
-            }
-            catch(Exception e)
-            {
-
-            }
-
-        }
-
-        void OnudpsendCompleted(object send, SocketAsyncEventArgs e)
-        {
-            lock (_lock)
-            {
-                if(_udpsendArgs.BytesTransferred > 0 && _udpsendArgs.SocketError == SocketError.Success)
-                {
-                    try
-                    {
-                        //ì „ì†¡ì™„ë£Œì‹œ ì´ˆê¸°í™”
-                        _udpsendArgs.BufferList = null;
-                        _udppendingList.Clear();
-
-                        if(_udpsendQue.Count > 0)
-                        {
-                            RegisterudpSend();
-                        }
-                    }
-                    catch(Exception ex)
-                    {
-
-                    }
-
-                }
-                else
-                {
-                    Disconnect();
-                }
-
-
-            }
-        }
+        #region UDP ÇÃ·¹ÀÌ¾î,¿ÀºêÁ§Æ® ÀÌµ¿
 
         void RegisterudpRecv()
         {
@@ -331,34 +239,34 @@ namespace NetworkCore
             }
             catch (Exception e)
             {
-
+                
             }
         }
 
         void OnudpRecvCompleted(object sender, SocketAsyncEventArgs args)
         {
-            if (args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
+            if(args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
             {
                 try
                 {
-                    //ë²„í¼ ì²´í¬
-                    if (_udprecvBuffer.OnWrite(args.BytesTransferred) == false)
+                    //¹öÆÛ Ã¼Å©
+                    if(_udprecvBuffer.OnWrite(args.BytesTransferred) == false)
                     {
-                        //ì—°ê²°ëŠê¸°
+                        //¿¬°á²÷±â
                         return;
                     }
 
-                    //ì²˜ë¦¬ í™•ì¸
+                    //Ã³¸® È®ÀÎ
 
                     int processLen = OnRecv(_udprecvBuffer.ReadSegment);
 
-                    if (processLen < 0 || _udprecvBuffer.DataSize < processLen)
+                    if (processLen <= 0 || _udprecvBuffer.DataSize < processLen)
                     {
                         Disconnect();
                         return;
                     }
 
-                    // Read ì»¤ì„œ ì´ë™
+                    // Read Ä¿¼­ ÀÌµ¿
                     if (_udprecvBuffer.OnRead(processLen) == false)
                     {
                         Disconnect();
@@ -367,15 +275,23 @@ namespace NetworkCore
 
                     RegisterudpRecv();
                 }
-                catch (Exception e)
-                {
+                catch (Exception e) { 
 
                 }
             }
         }
 
+        void RegisterudpSend()
+        {
 
+        }
 
+        void OnudpsendCompleted(object send, SocketAsyncEventArgs e)
+        {
+
+        }
+
+        
 
         #endregion
 

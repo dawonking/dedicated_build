@@ -1,7 +1,11 @@
-using NetworkCore;
-using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Net;
+using System.Net.Sockets;
 using UnityEngine;
+using NetworkCore;
 
 /*
  전송관련
@@ -13,20 +17,14 @@ using UnityEngine;
 
 
 public class NetworkManager : MonoBehaviour
-{
-    static NetworkManager _instance;
-    public static NetworkManager Instance { get { return _instance; } }
-
-
+{   
     static Listener _listener = new Listener();
     GameRoomManager roomManager = new GameRoomManager();
     float _lastTickTime = 0.0f;
 
-
-
     private void Awake()
     {
-
+        
     }
 
 
@@ -49,7 +47,7 @@ public class NetworkManager : MonoBehaviour
         IPEndPoint endPoint = new IPEndPoint(ipAddr, 10001);
 
 
-        _listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });
+        _listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });   
     }
 
     private void FixedUpdate()
@@ -69,7 +67,7 @@ public class NetworkManager : MonoBehaviour
 
     private void LateUpdate()
     {
-
+        
     }
 
     public void Message(object msg)
@@ -83,32 +81,4 @@ public class NetworkManager : MonoBehaviour
         _listener.Disconnet();
     }
 
-}
-
-
-
-
-public class setM : MonoBehaviour
-{
-
-    static setM _instance = new setM();
-    public static setM Instance { get { return _instance; } }
-
-
-
-    public void Msg(string msg)
-    {
-        Debug.Log(msg);
-    }
-
-    public void Msg(ArraySegment<byte> buffer)
-    {
-        Debug.Log(buffer.Count);
-
-        for (int i = 0; i < buffer.Count; i++)
-        {
-            Debug.Log(i + " = " + buffer[i]);
-        }
-
-    }
 }
